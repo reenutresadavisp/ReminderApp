@@ -27,11 +27,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import java.time.Duration
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderDetail(viewModel: ReminderViewModel,onSuccess: (String?,Long) -> Unit) {
+fun ReminderDetail(viewModel: ReminderViewModel,onSuccess: (String?,Duration?) -> Unit) {
 
     var name = remember { mutableStateOf("") }
     var timeExpanded = remember { mutableStateOf(false) }

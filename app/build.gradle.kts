@@ -61,12 +61,16 @@ dependencies {
     val nav_version = "2.7.7"
     implementation ("androidx.navigation:navigation-compose:$nav_version")
 
-    val room_version = "2.4.0"
+    val room_version = "2.6.1"
 
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
-//    annotationProcessor("androidx.room:room-compiler:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+
+    val work_version = "2.9.0"
+    implementation("androidx.work:work-runtime-ktx:$work_version")
+    implementation("androidx.hilt:hilt-work:1.1.0")
+
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")

@@ -20,7 +20,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 
 private enum class Route(val value: String) {
@@ -62,30 +67,13 @@ class MainActivity : ComponentActivity() {
 
             composable(Route.DETAIL.value) {
                 ReminderDetail(viewModel = hiltViewModel()) {title,duration ->
+                    createWorkRequest(title?:"", duration)
                     navController.navigate(Route.LIST.value)
                 }
             }
         }
     }
 
-
-    fun createNotification(title: String, message: String) {
-
-        val notification = NotificationCompat.Builder(this, "reminder_channel")
-            .setContentTitle(title)
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .build()
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-        NotificationManagerCompat.from(this).notify(1001, notification)
-    }
 
     fun checkNotificationPermission() {
         if (ActivityCompat.checkSelfPermission(
@@ -100,6 +88,23 @@ class MainActivity : ComponentActivity() {
                     1002
                 )
             }
+        }
+    }
+
+    private fun createWorkRequest(message: String,timeDelayInSeconds: Duration?  ) {
+        val myWorkRequest = timeDelayInSeconds?.let {
+            OneTimeWorkRequestBuilder<ReminderWorker>()
+                .setInitialDelay(it)
+                .setInputData(
+                    workDataOf(
+                        "message" to message,
+                    )
+                )
+                .build()
+        }
+
+        if (myWorkRequest != null) {
+            WorkManager.getInstance(this).enqueue(myWorkRequest)
         }
     }
 

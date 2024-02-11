@@ -92,7 +92,7 @@ class ReminderViewModel @Inject constructor(private val repository: ReminderRepo
                     uiState.copy(
                         title = title,
                         scheduleAndNavigateBack = true,
-                        duration = Duration.between(currentTime,scheduleTime).abs().toMillis())
+                        duration = Duration.between(currentTime,scheduleTime).abs())
                 }
             }
         }
@@ -123,5 +123,5 @@ data class ReminderUiState(
     val unit: String? = null,
     val reminders:List<MyReminder>? = null,
     val scheduleAndNavigateBack:Boolean = false,
-    val duration:Long = 0L
+    val duration:Duration? = null
 )
