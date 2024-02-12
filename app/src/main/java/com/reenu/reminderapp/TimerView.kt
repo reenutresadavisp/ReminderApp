@@ -165,12 +165,20 @@ fun TimerView(hours: Int, minutes: Int, unit: String?, onTimeClick: (String) -> 
         }
         Spacer(modifier = Modifier.height(8.dp))
         Button(modifier = Modifier.fillMaxWidth().padding(8.dp), onClick = {
-            onTimeClick("${hour.value}:${minute.value} ${period.value}")
+            onTimeClick("${hour.value.addLeadingZero()}:${minute.value.addLeadingZero()} ${period.value}")
         }) {
             Text("Set")
         }
     }
 
 
+}
+
+fun Int.addLeadingZero(): String {
+    return if (this < 10) {
+        "0$this"
+    } else {
+        this.toString()
+    }
 }
 

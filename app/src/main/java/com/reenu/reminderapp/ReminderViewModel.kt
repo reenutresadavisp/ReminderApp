@@ -43,7 +43,9 @@ class ReminderViewModel @Inject constructor(private val repository: ReminderRepo
             formatter = DateTimeFormatter.ofPattern("mm")
             val minute = localTime.format(formatter).toInt()
 
-            val unit = if(hour<12) "am" else "pm"
+            formatter = DateTimeFormatter.ofPattern("HH")
+            val hour24Format = localTime.format(formatter).toInt()
+            val unit = if(hour24Format<12) "am" else "pm"
 
             reminderStateFlow.update { uiState ->
                 uiState.copy(
