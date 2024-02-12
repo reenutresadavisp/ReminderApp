@@ -52,8 +52,6 @@ class MainActivity : ComponentActivity() {
         navController: NavHostController,
         routeState: MutableState<String>
     ) {
-        routeState.value = navController.currentBackStackEntryAsState().value?.destination?.route
-            ?: Route.LIST.value
         NavHost(
             navController = navController,
             startDestination = routeState.value
@@ -68,7 +66,7 @@ class MainActivity : ComponentActivity() {
             composable(Route.DETAIL.value) {
                 ReminderDetail(viewModel = hiltViewModel()) {title,duration ->
                     createWorkRequest(title?:"", duration)
-                    navController.navigate(Route.LIST.value)
+                    navController.navigateUp()
                 }
             }
         }

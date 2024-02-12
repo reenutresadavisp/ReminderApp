@@ -58,12 +58,12 @@ fun TimerView(hours: Int, minutes: Int, unit: String?, onTimeClick: (String) -> 
             )
             Column(
                 modifier = Modifier.size(48.dp)
-                    .clickable(enabled = minute.value<60) {minute.value = (minute.value)+1},
+                    .clickable(enabled = minute.value<59) {minute.value = (minute.value)+1},
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(Icons.Filled.KeyboardArrowUp, "Upwards",
-                    tint = if(minute.value<60)Color.Black else Color.Gray)
+                    tint = if(minute.value<59)Color.Black else Color.Gray)
             }
             Spacer(
                 modifier = Modifier.size(48.dp)

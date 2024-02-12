@@ -29,9 +29,10 @@ class ReminderWorker @AssistedInject constructor(
 
         val notification = NotificationCompat.Builder(context, "reminder_channel")
             .setContentTitle("Reminder")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.bell)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .build()
 
         if (ActivityCompat.checkSelfPermission(

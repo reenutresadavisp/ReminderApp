@@ -28,7 +28,7 @@ class ReminderApplication : Application(), Configuration.Provider {
     private fun createNotificationChannel() {
         val name = "Reminder Channel"
         val descriptionText = "Channel for reminder notifications"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel("reminder_channel", name, importance).apply {
             description = descriptionText
         }
