@@ -30,6 +30,9 @@
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove" />
+
+        <receiver android:name=".ReminderBroadCastReceiver" android:exported="false">
+        </receiver>
     </application>
 
 </manifest>

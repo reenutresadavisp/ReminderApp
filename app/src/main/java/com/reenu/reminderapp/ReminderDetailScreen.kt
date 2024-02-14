@@ -27,25 +27,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import java.time.Duration
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderDetail(viewModel: ReminderViewModel,onSuccess: (String?,Duration?) -> Unit) {
+fun ReminderDetail(viewModel: ReminderViewModel, onSuccess: (Long, String?, Duration?) -> Unit) {
 
     var name = remember { mutableStateOf("") }
     var timeExpanded = remember { mutableStateOf(false) }
 
     val uiState = remember { viewModel.reminderStateFlow }.collectAsState()
 
-    if(uiState.value.scheduleAndNavigateBack){
-        onSuccess(uiState.value.title, uiState.value.duration)
-    }else {
+    if (uiState.value.scheduleAndNavigateBack) {
+        onSuccess(uiState.value.reminderId, uiState.value.title, uiState.value.duration)
+    } else {
         Column(
             modifier = Modifier
                 .background(Color.White)
@@ -58,33 +54,35 @@ fun ReminderDetail(viewModel: ReminderViewModel,onSuccess: (String?,Duration?) -
             )
             Column(modifier = Modifier.background(Color.White)) {
 
-                    TextField(
-                        value = name.value, onValueChange = { name.value = it }, modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                Color.White
-                            )
-                            .padding(bottom = 8.dp)
-                    )
+                TextField(
+                    value = name.value, onValueChange = { name.value = it }, modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            Color.White
+                        )
+                        .padding(bottom = 8.dp)
+                )
 
                 if (!timeExpanded.value) {
 
-                        Row(modifier = Modifier.clickable { timeExpanded.value = true }) {
-                            Icon(Icons.Filled.DateRange, contentDescription = "Add Time")
-                            Text("Add Time")
-                        }
-                } else {
-                        Column {
-                            DateAndTimeView(
-                                uiState,
-                                { timeExpanded.value = false },
-                                { date -> viewModel.updateDate(date) },
-                                { time -> viewModel.updateTime(time) })
-                        }
+                    Row(modifier = Modifier.clickable { timeExpanded.value = true }) {
+                        Icon(Icons.Filled.DateRange, contentDescription = "Add Time")
+                        Text("Add Time")
                     }
+                } else {
+                    Column {
+                        DateAndTimeView(
+                            uiState,
+                            { timeExpanded.value = false },
+                            { date -> viewModel.updateDate(date) },
+                            { time -> viewModel.updateTime(time) })
+                    }
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Button(modifier = Modifier.fillMaxWidth().padding(8.dp), onClick = {
+            Button(modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp), onClick = {
                 viewModel.addReminder(name.value)
             }) {
                 Text("Set")
@@ -94,7 +92,12 @@ fun ReminderDetail(viewModel: ReminderViewModel,onSuccess: (String?,Duration?) -
 }
 
 @Composable
-fun DateAndTimeView(uiState: State<ReminderUiState>, onClose: () -> Unit, onDateClick:(LocalDate) -> Unit, onTimeClick:(String)->Unit) {
+fun DateAndTimeView(
+    uiState: State<ReminderUiState>,
+    onClose: () -> Unit,
+    onDateClick: (LocalDate) -> Unit,
+    onTimeClick: (String) -> Unit
+) {
     val dateClicked = remember { mutableStateOf(true) }
     val timeClicked = remember { mutableStateOf(false) }
     Column {
@@ -112,14 +115,16 @@ fun DateAndTimeView(uiState: State<ReminderUiState>, onClose: () -> Unit, onDate
                 )
             }
         }
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(text = uiState.value.formattedDate?:"", modifier = Modifier.clickable {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp), horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = uiState.value.formattedDate ?: "", modifier = Modifier.clickable {
                 dateClicked.value = true
                 timeClicked.value = false
             })
-            Text(text = uiState.value.formattedTime?:"", modifier = Modifier.clickable {
+            Text(text = uiState.value.formattedTime ?: "", modifier = Modifier.clickable {
                 timeClicked.value = true
                 dateClicked.value = false
             })
@@ -128,7 +133,7 @@ fun DateAndTimeView(uiState: State<ReminderUiState>, onClose: () -> Unit, onDate
             CalendarView(uiState.value.calendarDate, onDateClick)
         }
         if (timeClicked.value) {
-            TimerView(uiState.value.hour,uiState.value.minute,uiState.value.unit,onTimeClick)
+            TimerView(uiState.value.hour, uiState.value.minute, uiState.value.unit, onTimeClick)
         }
     }
 

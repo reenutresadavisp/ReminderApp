@@ -12,10 +12,9 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 object ReminderHiltModule {
-
     @Provides
     fun provideRoomClient(@ApplicationContext context: Context): ReminderDatabase {
-       return Room.databaseBuilder(
+        return Room.databaseBuilder(
             context,
             ReminderDatabase::class.java, "reminder_db"
         ).build()
@@ -25,6 +24,4 @@ object ReminderHiltModule {
     fun provideReminderDao(appDatabase: ReminderDatabase): ReminderDao {
         return appDatabase.reminderDao()
     }
-
-
 }

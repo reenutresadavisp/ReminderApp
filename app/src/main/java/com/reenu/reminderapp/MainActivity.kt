@@ -1,7 +1,6 @@
 package com.reenu.reminderapp
 
 import android.Manifest
-import android.app.AlarmManager
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -12,21 +11,20 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 
+private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1002
+const val WORKER_INPUT_DATA_MSG_KEY = "message"
+const val WORKER_INPUT_DATA_ID_KEY = "reminder_id"
 
 private enum class Route(val value: String) {
     LIST("list"), DETAIL("detail")
@@ -64,8 +62,8 @@ class MainActivity : ComponentActivity() {
             }
 
             composable(Route.DETAIL.value) {
-                ReminderDetail(viewModel = hiltViewModel()) {title,duration ->
-                    createWorkRequest(title?:"", duration)
+                ReminderDetail(viewModel = hiltViewModel()) { reminderId, title, duration ->
+                    createWorkRequest(reminderId, title ?: "", duration)
                     navController.navigateUp()
                 }
             }
@@ -73,7 +71,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    fun checkNotificationPermission() {
+    private fun checkNotificationPermission() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.POST_NOTIFICATIONS
@@ -83,19 +81,24 @@ class MainActivity : ComponentActivity() {
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    1002
+                    NOTIFICATION_PERMISSION_REQUEST_CODE
                 )
             }
         }
     }
 
-    private fun createWorkRequest(message: String,timeDelayInSeconds: Duration?  ) {
+    private fun createWorkRequest(
+        reminderId: Long,
+        message: String,
+        timeDelayInSeconds: Duration?
+    ) {
         val myWorkRequest = timeDelayInSeconds?.let {
             OneTimeWorkRequestBuilder<ReminderWorker>()
                 .setInitialDelay(it)
                 .setInputData(
                     workDataOf(
-                        "message" to message,
+                        WORKER_INPUT_DATA_ID_KEY to reminderId,
+                        WORKER_INPUT_DATA_MSG_KEY to message
                     )
                 )
                 .build()

@@ -12,6 +12,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -45,7 +46,7 @@ class ReminderViewModel @Inject constructor(private val repository: ReminderRepo
 
             formatter = DateTimeFormatter.ofPattern("HH")
             val hour24Format = localTime.format(formatter).toInt()
-            val unit = if(hour24Format<12) "am" else "pm"
+            val unit = if (hour24Format < 12) "am" else "pm"
 
             reminderStateFlow.update { uiState ->
                 uiState.copy(
@@ -68,8 +69,6 @@ class ReminderViewModel @Inject constructor(private val repository: ReminderRepo
     }
 
 
-
-
     fun updateDate(date: LocalDate) {
         formatDateTime(date)
     }
@@ -85,36 +84,55 @@ class ReminderViewModel @Inject constructor(private val repository: ReminderRepo
         viewModelScope.launch {
             repository.addReminder(
                 title,
-                reminderStateFlow.value.formattedDate?:"",
-                reminderStateFlow.value.formattedTime?:""
-            ).collect{
-                val currentTime = LocalTime.now()
-                val scheduleTime = reminderStateFlow.value.localTime
+                reminderStateFlow.value.formattedDate ?: "",
+                reminderStateFlow.value.formattedTime ?: "",
+                reminderStateFlow.value.calendarDate?.atTime(reminderStateFlow.value.localTime)
+            ).collect {
+                val currentTime = LocalDateTime.now()
+                val scheduleTime = reminderStateFlow.value.calendarDate?.atTime(reminderStateFlow.value.localTime)
                 reminderStateFlow.update { uiState ->
                     uiState.copy(
+                        reminderId = it,
                         title = title,
                         scheduleAndNavigateBack = true,
-                        duration = Duration.between(currentTime,scheduleTime).abs())
+                        duration = Duration.between(currentTime, scheduleTime).abs()
+                    )
                 }
             }
         }
 
     }
 
-    fun getAllReminder(){
+    fun getAllReminder(tabIndex: Int) {
         viewModelScope.launch {
-            repository.fetchAllReminder()
-                .collect{
-                    reminderStateFlow.update { uiState ->
-                        uiState.copy(reminders = it)
+            if (tabIndex == 0) {
+                repository.fetchUpcomingReminders()
+                    .collect {
+                        reminderStateFlow.update { uiState ->
+                            uiState.copy(reminders = it)
+                        }
                     }
-                }
+            }else if(tabIndex ==2){
+                repository.fetchCompletedReminders()
+                    .collect {
+                        reminderStateFlow.update { uiState ->
+                            uiState.copy(reminders = it)
+                        }
+                    }
+            }else {
+                repository.fetchAllReminders()
+                    .collect {
+                        reminderStateFlow.update { uiState ->
+                            uiState.copy(reminders = it)
+                        }
+                    }
+            }
         }
     }
-
 }
 
 data class ReminderUiState(
+    val reminderId: Long = -1L,
     val title:String? = null,
     val formattedDate: String? = null,
     val formattedTime: String? = null,
@@ -127,3 +145,4 @@ data class ReminderUiState(
     val scheduleAndNavigateBack:Boolean = false,
     val duration:Duration? = null
 )
+
