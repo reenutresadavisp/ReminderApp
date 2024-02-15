@@ -15,10 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 import androidx.compose.foundation.lazy.items
+import com.reenu.reminderapp.model.ReminderDate
 
 @Composable
-fun CalendarView(calendarDate: LocalDate?, onDateClick: (LocalDate) -> Unit) {
-    var selectedDate by remember { mutableStateOf(calendarDate?:LocalDate.now()) }
+fun CalendarView(reminderDate: ReminderDate, onDateClick: (LocalDate) -> Unit) {
+    var selectedDate by remember { mutableStateOf(reminderDate.localDate) }
 
     Column(
         modifier = Modifier

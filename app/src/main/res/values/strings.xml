@@ -3,4 +3,9 @@
     <string name="no_reminder_found_error_msg">No reminder found.</string>
     <string name="add_new_reminder_content_desc">Add new reminder</string>
     <string name="my_reminders_heading">My reminders</string>
+    <string name="new_reminder_heading">New reminder</string>
+    <string name="add_reminder_btn">Add Reminder</string>
+    <string name="add_time">Add Time</string>
+    <string name="close_time">Close Time</string>
+    <string name="don_t_repeat">Don\'t repeat</string>
 </resources>

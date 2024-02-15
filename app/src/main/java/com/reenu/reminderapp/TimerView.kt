@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -24,60 +25,46 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.reenu.reminderapp.model.ReminderTime
 
 @Composable
-fun TimerView(hours: Int, minutes: Int, unit: String?, onTimeClick: (String) -> Unit) {
+fun TimerView(time: ReminderTime, onTimeClick: (Int, Int, String) -> Unit) {
 
-    val hour  = remember{mutableStateOf(hours)}
-    val minute = remember {
-        mutableStateOf(minutes)
-    }
-    val period = remember {
-        mutableStateOf(unit?:"am")
-    }
-    Column() {
+    val hour = remember { mutableIntStateOf(time.hour) }
+    val minute = remember { mutableIntStateOf(time.minute) }
+    val unit = remember { mutableStateOf(time.unit) }
+
+    Column {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White)
         ) {
-            Column(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clickable(enabled = hour.value<12) {hour.value = (hour.value + 1)},
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-
+            Incrementer(
+                isEnabled = hour.intValue < 12,
+                tint = if (hour.intValue < 12) Color.Black else Color.Gray
             ) {
-                Icon(Icons.Filled.KeyboardArrowUp, "Upwards",
-                    tint = if(hour.value<12)Color.Black else Color.Gray)
+                hour.intValue = (hour.intValue + 1)
             }
             Spacer(
                 modifier = Modifier.size(48.dp)
             )
-            Column(
-                modifier = Modifier.size(48.dp)
-                    .clickable(enabled = minute.value<59) {minute.value = (minute.value)+1},
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Incrementer(
+                isEnabled = minute.intValue < 59,
+                tint = if (minute.intValue < 59) Color.Black else Color.Gray
             ) {
-                Icon(Icons.Filled.KeyboardArrowUp, "Upwards",
-                    tint = if(minute.value<59)Color.Black else Color.Gray)
+                minute.intValue = (minute.intValue + 1)
             }
             Spacer(
                 modifier = Modifier.size(48.dp)
             )
-            Column(
-                modifier = Modifier.size(48.dp)
-                    .clickable(enabled = period.value=="pm") {period.value = "am"},
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Incrementer(
+                isEnabled = unit.value == "pm",
+                tint = if (unit.value == "pm") Color.Black else Color.Gray
             ) {
-                Icon(Icons.Filled.KeyboardArrowUp, "Upwards",
-                    tint = if(period.value=="pm")Color.Black else Color.Gray)
+                unit.value = "am"
             }
-
         }
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -85,38 +72,13 @@ fun TimerView(hours: Int, minutes: Int, unit: String?, onTimeClick: (String) -> 
                 .fillMaxWidth()
                 .background(Color.White)
         ) {
-            Column(
-                modifier = Modifier.size(48.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(hour.value.toString(), fontSize = 20.sp)
-            }
-            Column(
-                modifier = Modifier.size(48.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(":", fontSize = 20.sp)
-            }
-            Column(
-                modifier = Modifier.size(48.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(minute.value.toString(), fontSize = 20.sp)
-            }
+            TimerText(text = hour.intValue.toString())
+            TimerText(text = ":")
+            TimerText(text = minute.intValue.toString())
             Spacer(
                 modifier = Modifier.size(48.dp)
             )
-            Column(
-                modifier = Modifier.size(48.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(period.value, fontSize = 20.sp)
-            }
-
+            TimerText(text = unit.value)
         }
 
         Row(
@@ -125,47 +87,36 @@ fun TimerView(hours: Int, minutes: Int, unit: String?, onTimeClick: (String) -> 
                 .fillMaxWidth()
                 .background(Color.White)
         ) {
-            Column(
-                modifier = Modifier.size(48.dp)
-                    .clickable(enabled = hour.value>1) {hour.value = (hour.value)-1},
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Decrementer(
+                isEnabled = hour.intValue > 1,
+                tint = if (hour.intValue > 1) Color.Black else Color.Gray
             ) {
-                Icon(Icons.Filled.KeyboardArrowDown, "Downward",
-                        tint = if(hour.value>1)Color.Black else Color.Gray)
-
+                hour.intValue = (hour.intValue) - 1
             }
             Spacer(
                 modifier = Modifier.size(48.dp)
             )
-            Column(
-                modifier = Modifier.size(48.dp)
-                    .clickable(enabled = minute.value>0) {minute.value = (minute.value)-1},
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Decrementer(
+                isEnabled = minute.intValue > 0,
+                tint = if (minute.intValue > 0) Color.Black else Color.Gray
             ) {
-                Icon(Icons.Filled.KeyboardArrowDown, "Downward",
-                    tint = if(minute.value>0)Color.Black else Color.Gray)
-
+                minute.intValue = (minute.intValue) - 1
             }
             Spacer(
                 modifier = Modifier.size(48.dp)
             )
-            Column(
-                modifier = Modifier.size(48.dp)
-                    .clickable(enabled = period.value=="am") {period.value = "pm"},
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+            Decrementer(
+                isEnabled = unit.value == "am",
+                tint = if (unit.value == "am") Color.Black else Color.Gray
             ) {
-                Icon(Icons.Filled.KeyboardArrowDown, "Downward",
-                    tint = if(period.value=="am")Color.Black else Color.Gray)
-
+                unit.value = "pm"
             }
-
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Button(modifier = Modifier.fillMaxWidth().padding(8.dp), onClick = {
-            onTimeClick("${hour.value.addLeadingZero()}:${minute.value.addLeadingZero()} ${period.value}")
+        Button(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp), onClick = {
+            onTimeClick(hour.intValue, minute.intValue, unit.value)
         }) {
             Text("Set")
         }
@@ -174,11 +125,48 @@ fun TimerView(hours: Int, minutes: Int, unit: String?, onTimeClick: (String) -> 
 
 }
 
-fun Int.addLeadingZero(): String {
-    return if (this < 10) {
-        "0$this"
-    } else {
-        this.toString()
+@Composable
+fun Incrementer(isEnabled: Boolean, tint: Color, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .size(48.dp)
+            .clickable(enabled = isEnabled) { onClick() },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        ) {
+        Icon(
+            Icons.Filled.KeyboardArrowUp, "Upwards",
+            tint = tint
+        )
+    }
+}
+
+@Composable
+fun Decrementer(isEnabled: Boolean, tint: Color, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .size(48.dp)
+            .clickable(enabled = isEnabled) { onClick() },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+
+        ) {
+        Icon(
+            Icons.Filled.KeyboardArrowDown, "Downwards",
+            tint = tint
+        )
+    }
+}
+
+@Composable
+fun TimerText(text: String) {
+    Column(
+        modifier = Modifier.size(48.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text, fontSize = 20.sp)
     }
 }
 

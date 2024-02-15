@@ -31,13 +31,13 @@ class ReminderWorker @AssistedInject constructor(
         putExtra(WORKER_INPUT_DATA_ID_KEY,inputData.getLong(WORKER_INPUT_DATA_ID_KEY,0))
     }
     val completePendingIntent: PendingIntent =
-        PendingIntent.getBroadcast(appContext, 0, completeIntent, PendingIntent.FLAG_MUTABLE)
+        PendingIntent.getBroadcast(appContext, 0, completeIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
     val cancelIntent = Intent(appContext, ReminderBroadCastReceiver::class.java).apply {
         action = ACTION_CANCEL
     }
     val cancelPendingIntent: PendingIntent =
-        PendingIntent.getBroadcast(appContext, 0, cancelIntent, PendingIntent.FLAG_MUTABLE)
+        PendingIntent.getBroadcast(appContext, 0, cancelIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
     override fun doWork(): Result {
         try {
@@ -64,6 +64,7 @@ class ReminderWorker @AssistedInject constructor(
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .addAction(R.drawable.mark, ACTION_COMPLETE, completePendingIntent)
             .addAction(R.drawable.close, ACTION_CANCEL, cancelPendingIntent)
+            .setAutoCancel(false)
             .build()
 
         if (ActivityCompat.checkSelfPermission(
